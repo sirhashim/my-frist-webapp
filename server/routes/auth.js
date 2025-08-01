@@ -21,31 +21,10 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login with test accounts support
+// Login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    // Test accounts
-    const testAccounts = {
-      'student@test.com': { password: '123456', role: 'student', name: 'Test Student' },
-      'admin@test.com': { password: 'admin123', role: 'admin', name: 'Test Admin' }
-    };
-    
-    // Check test accounts first
-    if (testAccounts[email] && testAccounts[email].password === password) {
-      const testUser = testAccounts[email];
-      const token = jwt.sign({ id: email, role: testUser.role }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
-      return res.json({ 
-        token, 
-        user: { 
-          id: email, 
-          name: testUser.name, 
-          email: email, 
-          role: testUser.role 
-        } 
-      });
-    }
     
     // Regular database authentication
     const user = await User.findOne({ email });
