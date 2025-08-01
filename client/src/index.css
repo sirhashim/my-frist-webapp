@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Glassmorphism Theme */
+body {
+  @apply bg-gradient-to-br from-primary to-secondary text-primary-text;
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+}
+
+/* Main container */
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Glassmorphism Navbar */
+header {
+  @apply sticky top-0 z-50 py-2;
+}
+
+.navbar-glass {
+  @apply bg-light-bg border border-light-border shadow-glass backdrop-blur-blur rounded-full;
+}
+
+.navbar-glass .nav-links a {
+  @apply text-primary-text hover:text-gray-300 transition-colors duration-300 px-3 py-2 rounded-md text-sm font-medium;
+}
+
+.navbar-glass .btn {
+    @apply text-primary-text;
+}
+
+/* Glassmorphism Cards & Modals */
+.card-glass {
+  @apply bg-light-bg border border-light-border shadow-glass backdrop-blur-blur rounded-xl p-6 text-primary-text;
+}
+
+.modal-glass {
+    @apply bg-light-bg border border-light-border shadow-glass backdrop-blur-blur rounded-xl;
+}
+
+/* Button Styles */
+.btn {
+  @apply px-4 py-2 rounded-lg font-semibold text-white transition-all duration-300;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary shadow-lg;
+}
+
+.btn-secondary {
+  @apply bg-gray-500 hover:bg-gray-600 shadow-lg;
+}
+
+.btn-danger {
+  @apply bg-red-500 hover:bg-red-600 shadow-lg;
+}
+
+/* Form Styles */
+input, textarea, select {
+  @apply w-full p-3 rounded-md bg-light-bg border border-light-border text-primary-text placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-secondary;
+}
+
+/* General Page Styles */
+.page-container {
+    @apply container py-8;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    @apply text-primary-text;
+}
+
+h2 {
+    @apply text-3xl font-bold text-center mb-8;
+}
+
+/* Specific component adjustments */
+.auth-form {
+    @apply card-glass max-w-md mx-auto mt-10;
+}
+
+.flashcards-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.flashcard-item {
+    @apply card-glass;
+}
+
+.modal-content {
+    @apply modal-glass p-6;
+}
+
+.close-button {
+    @apply text-white;
+}
+
+.close-button:hover {
+    @apply text-gray-300;
+}
+
+.page-section {
+    @apply container py-12;
+}
+
+.pricing-card {
+    @apply card-glass;
+}
+
+.study-card-area {
+    @apply card-glass;
+}
+
+.rating-buttons .btn {
+    @apply bg-light-bg border border-light-border text-primary-text hover:bg-opacity-50;
+}
+
+.rating-buttons .btn[data-quality="5"] {
+  @apply bg-green-500 text-white;
+}
+
+.rating-buttons .btn[data-quality="0"] {
+  @apply bg-red-500 text-white;
+}
