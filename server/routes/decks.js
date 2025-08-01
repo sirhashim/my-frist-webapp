@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { body, validationResult } = require('express-validator');
 const Deck = require('../models/deck');
 const auth = require('../middleware/auth'); // Assuming auth middleware exists
 const Flashcard = require('../models/Flashcard');
@@ -20,13 +21,18 @@ router.get('/', auth, async (req, res) => {
 // @route   POST api/decks
 // @desc    Create a new deck
 // @access  Private
-router.post('/', auth, async (req, res) => {
+router.post('/', [auth, [body('name', 'Name is required').not().isEmpty()]], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { name, description } = req.body;
   try {
     const newDeck = new Deck({
       name,
       description,
-      userId: req.user.id
+      userId: req.user.id,
     });
     const deck = await newDeck.save();
     res.json(deck);
@@ -39,7 +45,12 @@ router.post('/', auth, async (req, res) => {
 // @route   PUT api/decks/:id
 // @desc    Update a deck
 // @access  Private
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', [auth, [body('name', 'Name is required').not().isEmpty()]], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { name, description } = req.body;
 
   try {
@@ -51,11 +62,7 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(401).json({ msg: 'Not authorized' });
     }
 
-    deck = await Deck.findByIdAndUpdate(
-      req.params.id,
-      { $set: { name, description } },
-      { new: true }
-    );
+    deck = await Deck.findByIdAndUpdate(req.params.id, { $set: { name, description } }, { new: true });
 
     res.json(deck);
   } catch (err) {
@@ -77,7 +84,7 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(401).json({ msg: 'Not authorized' });
     }
 
-    await Deck.findByIdAndRemove(req.params.id);
+    await Deck.findByIdAndDelete(req.params.id);
 
     // Also remove deckId from flashcards that belong to this deck
     await Flashcard.updateMany({ deckId: req.params.id }, { $unset: { deckId: '' } });

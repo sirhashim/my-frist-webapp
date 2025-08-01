@@ -1,4 +1,5 @@
 const express = require('express');
+const { body, validationResult } = require('express-validator');
 const Flashcard = require('../models/Flashcard');
 const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
@@ -158,45 +159,76 @@ router.get('/:id', auth, canAccessCard, (req, res) => {
 });
 
 // Create a new flashcard
-router.post('/', auth, async (req, res) => {
-  try {
-    const cardData = {
-      ...req.body,
-      userId: req.user.id,
-      'sm2.difficulty': 'good',
-      'sm2.nextReview': new Date()
-    };
-    
-    const card = new Flashcard(cardData);
-    await card.save();
-    
-    res.status(201).json(card);
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: 'Invalid data' });
+router.post(
+  '/',
+  [
+    auth,
+    [
+      body('question', 'Question is required').not().isEmpty(),
+      body('answer', 'Answer is required').not().isEmpty(),
+    ],
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const cardData = {
+        ...req.body,
+        userId: req.user.id,
+        'sm2.difficulty': 'good',
+        'sm2.nextReview': new Date(),
+      };
+
+      const card = new Flashcard(cardData);
+      await card.save();
+
+      res.status(201).json(card);
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ message: 'Invalid data' });
+    }
   }
-});
+);
 
 // Update a flashcard
-router.put('/:id', auth, canAccessCard, async (req, res) => {
-  try {
-    const updates = Object.keys(req.body);
-    const allowedUpdates = ['question', 'answer', 'explanation', 'category', 'tags', 'isPublic', 'cardStyle'];
-    const isValidOperation = updates.every(update => allowedUpdates.includes(update));
-    
-    if (!isValidOperation) {
-      return res.status(400).json({ message: 'Invalid updates' });
+router.put(
+  '/:id',
+  [
+    auth,
+    canAccessCard,
+    [
+      body('question', 'Question is required').not().isEmpty(),
+      body('answer', 'Answer is required').not().isEmpty(),
+    ],
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
     
-    updates.forEach(update => req.card[update] = req.body[update]);
-    await req.card.save();
-    
-    res.json(req.card);
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: 'Update failed' });
+    try {
+      const updates = Object.keys(req.body);
+      const allowedUpdates = ['question', 'answer', 'explanation', 'category', 'tags', 'isPublic', 'cardStyle'];
+      const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
+
+      if (!isValidOperation) {
+        return res.status(400).json({ message: 'Invalid updates' });
+      }
+
+      updates.forEach((update) => (req.card[update] = req.body[update]));
+      await req.card.save();
+
+      res.json(req.card);
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ message: 'Update failed' });
+    }
   }
-});
+);
 
 // Update card after review (SM-2 algorithm)
 router.post('/:id/review', auth, canAccessCard, async (req, res) => {
@@ -224,7 +256,7 @@ router.post('/:id/review', auth, canAccessCard, async (req, res) => {
 // Delete a flashcard
 router.delete('/:id', auth, canAccessCard, async (req, res) => {
   try {
-    await req.card.remove();
+    await req.card.deleteOne();
     res.json({ message: 'Flashcard deleted' });
   } catch (error) {
     console.error(error);
