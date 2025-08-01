@@ -11,6 +11,12 @@ process.on('uncaughtException', (error) => {
 });
 
 require('dotenv').config();
+
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL ERROR: JWT_SECRET is not defined.');
+  process.exit(1);
+}
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
