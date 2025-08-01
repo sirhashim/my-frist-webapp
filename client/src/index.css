@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Glassmorphism Theme */
+/* Clean & Modern Theme (Notion-inspired) */
 body {
-  @apply bg-gradient-to-br from-primary to-secondary text-primary-text;
+  @apply bg-gradient-to-br from-secondary to-primary text-primary-text;
   font-family: 'Poppins', sans-serif;
   min-height: 100vh;
 }
@@ -42,15 +42,15 @@ header {
 
 /* Button Styles */
 .btn {
-  @apply px-4 py-2 rounded-lg font-semibold text-white transition-all duration-300;
+  @apply px-4 py-2 rounded-lg font-semibold text-white transition-all duration-300 shadow-md;
 }
 
 .btn-primary {
-  @apply bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary shadow-lg;
+  @apply bg-primary hover:bg-opacity-80;
 }
 
 .btn-secondary {
-  @apply bg-gray-500 hover:bg-gray-600 shadow-lg;
+  @apply bg-gray-600 hover:bg-gray-700;
 }
 
 .btn-danger {

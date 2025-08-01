@@ -7,19 +7,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'primary': '#6a11cb',
-        'secondary': '#2575fc',
-        'light-bg': 'rgba(255, 255, 255, 0.1)',
-        'light-border': 'rgba(255, 255, 255, 0.2)',
+        'primary': '#4F46E5',
+        'secondary': '#1E3A8A',
+        'light-bg': 'rgba(17, 24, 39, 0.1)',
+        'light-border': 'rgba(255, 255, 255, 0.15)',
         'dark-text': '#e0e0e0',
-        'primary-text': '#ffffff',
+        'primary-text': '#F3F4F6',
       },
       boxShadow: {
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        'glass': '0 4px 30px rgba(0, 0, 0, 0.1)',
       },
       backdropFilter: {
         'none': 'none',
-        'blur': 'blur(4px)',
+        'blur': 'blur(5px)',
       },
     },
   },
