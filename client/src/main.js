@@ -103,23 +103,21 @@ const updateNavbar = () => {
     createAndAppendLink({ href: '#/register', text: 'Register' }, true, ['btn-primary']);
   }
 
-  // Re-attach generic routing event listeners to all links except the one with a custom listener (Logout)
-  document.querySelectorAll('.nav-links a').forEach(link => {
-    if (link.textContent !== 'Logout') {
-      link.removeEventListener('click', handleNavLinkClick); // Prevent duplicates
-      link.addEventListener('click', handleNavLinkClick);
-    }
-  });
 };
 
-const handleNavLinkClick = (e) => {
-  e.preventDefault(); // Prevent default link behavior
-  const route = e.target.dataset.route;
-  if (route) {
-    // Ensure the hash is formatted correctly (e.g., #/flashcards)
-    window.location.hash = '#/' + route;
+// Use event delegation for nav links
+navLinksContainer.addEventListener('click', (e) => {
+  if (e.target.tagName === 'A') {
+    const href = e.target.getAttribute('href');
+    // Let the browser handle hash changes for normal links
+    if (href && href !== '#') {
+      // The 'hashchange' event will trigger the router
+      return;
+    }
+    // Handle special cases like logout here if they don't have their own listeners
   }
-};
+});
+
 
 // Listen for hash changes
 window.addEventListener('hashchange', router);

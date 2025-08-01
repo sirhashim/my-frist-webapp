@@ -75,76 +75,39 @@ router.get('/', auth, async (req, res) => {
     const result = await Flashcard.paginate(filter, options);
     
     // Add stats for the current user's cards
-    const stats = await Flashcard.aggregate([
+    const statsResult = await Flashcard.aggregate([
       { $match: { userId: new mongoose.Types.ObjectId(req.user.id) } },
-      { 
-        $group: {
-          _id: null,
-          total: { $sum: 1 },
-          due: { 
-            $sum: { 
-              $cond: [
-                { $lte: ['$sm2.nextReview', new Date()] }, 
-                1, 
-                0 
-              ] 
-            } 
-          },
-          avgSuccessRate: { $avg: '$stats.successRate' },
-          byCategory: { $push: { category: '$category', count: 1 } }
-        }
+      {
+        $facet: {
+          mainStats: [
+            {
+              $group: {
+                _id: null,
+                total: { $sum: 1 },
+                due: { $sum: { $cond: [{ $lte: ['$sm2.nextReview', new Date()] }, 1, 0] } },
+                avgSuccessRate: { $avg: '$stats.successRate' },
+              },
+            },
+          ],
+          categoryStats: [
+            { $group: { _id: '$category', count: { $sum: 1 } } },
+            { $project: { _id: 0, category: '$_id', count: 1 } },
+          ],
+        },
       },
       {
         $project: {
-          _id: 0,
-          total: 1,
-          due: 1,
-          avgSuccessRate: { $round: ['$avgSuccessRate', 2] },
-          categories: {
-            $reduce: {
-              input: '$byCategory',
-              initialValue: [],
-              in: {
-                $let: {
-                  vars: {
-                    existing: {
-                      $filter: {
-                        input: '$$value',
-                        as: 'cat',
-                        cond: { $eq: ['$$cat.category', '$$this.category'] }
-                      }
-                    }
-                  },
-                  in: {
-                    $cond: [
-                      { $gt: [{ $size: '$$existing' }, 0] },
-                      {
-                        $map: {
-                          input: '$$value',
-                          as: 'cat',
-                          in: {
-                            $cond: [
-                              { $eq: ['$$cat.category', '$$this.category'] },
-                              { category: '$$cat.category', count: { $add: ['$$cat.count', 1] } },
-                              '$$cat'
-                            ]
-                          }
-                        }
-                      },
-                      { $concatArrays: ['$$value', [{ category: '$$this.category', count: 1 }]] }
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+          total: { $ifNull: [{ $arrayElemAt: ['$mainStats.total', 0] }, 0] },
+          due: { $ifNull: [{ $arrayElemAt: ['$mainStats.due', 0] }, 0] },
+          avgSuccessRate: { $ifNull: [{ $round: [{ $arrayElemAt: ['$mainStats.avgSuccessRate', 0] }, 2] }, 0] },
+          categories: '$categoryStats',
+        },
+      },
     ]);
-    
+
     res.json({
       ...result,
-      stats: stats[0] || { total: 0, due: 0, avgSuccessRate: 0, categories: [] }
+      stats: statsResult[0] || { total: 0, due: 0, avgSuccessRate: 0, categories: [] },
     });
     
   } catch (error) {

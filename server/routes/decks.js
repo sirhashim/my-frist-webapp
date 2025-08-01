@@ -14,7 +14,7 @@ router.get('/', auth, async (req, res) => {
     res.json(decks);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
@@ -38,7 +38,7 @@ router.post('/', [auth, [body('name', 'Name is required').not().isEmpty()]], asy
     res.json(deck);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
@@ -55,11 +55,11 @@ router.put('/:id', [auth, [body('name', 'Name is required').not().isEmpty()]], a
 
   try {
     let deck = await Deck.findById(req.params.id);
-    if (!deck) return res.status(404).json({ msg: 'Deck not found' });
+    if (!deck) return res.status(404).json({ message: 'Deck not found' });
 
     // Make sure user owns deck
     if (deck.userId.toString() !== req.user.id) {
-      return res.status(401).json({ msg: 'Not authorized' });
+      return res.status(401).json({ message: 'Not authorized' });
     }
 
     deck = await Deck.findByIdAndUpdate(req.params.id, { $set: { name, description } }, { new: true });
@@ -67,7 +67,7 @@ router.put('/:id', [auth, [body('name', 'Name is required').not().isEmpty()]], a
     res.json(deck);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
@@ -77,11 +77,11 @@ router.put('/:id', [auth, [body('name', 'Name is required').not().isEmpty()]], a
 router.delete('/:id', auth, async (req, res) => {
   try {
     let deck = await Deck.findById(req.params.id);
-    if (!deck) return res.status(404).json({ msg: 'Deck not found' });
+    if (!deck) return res.status(404).json({ message: 'Deck not found' });
 
     // Make sure user owns deck
     if (deck.userId.toString() !== req.user.id) {
-      return res.status(401).json({ msg: 'Not authorized' });
+      return res.status(401).json({ message: 'Not authorized' });
     }
 
     await Deck.findByIdAndDelete(req.params.id);
@@ -89,10 +89,10 @@ router.delete('/:id', auth, async (req, res) => {
     // Also remove deckId from flashcards that belong to this deck
     await Flashcard.updateMany({ deckId: req.params.id }, { $unset: { deckId: '' } });
 
-    res.json({ msg: 'Deck removed' });
+    res.json({ message: 'Deck removed' });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
